@@ -46,9 +46,9 @@ abbrev Ok text := Response.mk 200 "OK" text []
 
 def err404 : Response := Response.mk 404 "Not Found" "Resource Not Found" []
 def err404Handler (_ : Request) : Response := err404
-def constHandler (response : Response) : Request →  Response := Function.const Request response
+def constHandler (response : Response) : Request →  IO Response := Function.const Request <| return response
 
-def Handler : Type := (Request →  Response)
+def Handler : Type := (Request →  IO Response)
 
 @[reducible]
 def Route : Type := ((String →  HTTPMethod →  Bool) × Handler)
@@ -57,12 +57,13 @@ def Route : Type := ((String →  HTTPMethod →  Bool) × Handler)
 def RoutingTable : Type := List Route
 
 def getRoute (s : String) : (String →  HTTPMethod →  Bool) :=  fun url => fun method => (url == s) && (method == HTTPMethod.GET)
+def postRoute (s : String) : (String →  HTTPMethod →  Bool) :=  fun url => fun method => (url == s) && (method == HTTPMethod.POST)
 
- def post (s : String) (handler : Handler) : Route := (getRoute s, handler) 
+ def post (s : String) (handler : Handler) : Route := (postRoute s, handler) 
 
 
-def matchUrl (matchers : List Route) (url : String) (method : HTTPMethod) : (Request →  Response) := match matchers with
-  | [] => (fun _ => err404)
+def matchUrl (matchers : List Route) (url : String) (method : HTTPMethod) : (Request →  IO Response) := match matchers with
+  | [] => (fun _ => return err404)
   | ((f,r)::xs) => if (f url method) then r else matchUrl xs url method
 
 def handleRequest (routes : RoutingTable) (req : Request) := (matchUrl routes req.path req.method) req
@@ -73,12 +74,18 @@ def toUTF8 (resp : Response) : ByteArray := (s!"HTTP/1.1 {resp.code} {resp.statu
             resp.body).toUTF8
 
 -- open scoped ProofWidgets.JSX
+def cleanAttr (s : String) : String := match s with 
+ | "class_" => "class"
+ | "section_" => "section"
+ | s => String.replace s "_" "-"
+  
 
-def attrToString (l : List (String × Json)) : String := ""
-def listArrayToString (l : Array String) : String := ""
+def attrToString (sj : String × Json) : String := s!"{cleanAttr sj.fst}={sj.snd}"
+def attrsToString (l : List (String × Json)) : String := String.join <| List.map attrToString l
+def listArrayToString (l : Array String) : String := String.join l.data
 
 partial def htmlToString (x: ProofWidgets.Html) : String := match x with
-  | ProofWidgets.Html.element tag attrs children => s!"<{tag} {attrToString attrs.data}> {listArrayToString (children.map htmlToString)} </{tag}>"
+  | ProofWidgets.Html.element tag attrs children => s!"<{tag} {attrsToString attrs.data}> {listArrayToString (children.map htmlToString)} </{tag}>"
   | ProofWidgets.Html.text s => s
   | ProofWidgets.Html.component s a a2 a3 => "ERROR components not supported ERROR"
 

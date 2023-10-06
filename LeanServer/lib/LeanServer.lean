@@ -37,13 +37,13 @@ def runServer (routes : RoutingTable) : IO Unit := do
         IO.println reqString
         let request := RequestParser.run reqString
         IO.println request
-        let response := match request with 
-        | Except.error e => makeError e
+        let response ←  match request with 
+        | Except.error e => pure (makeError e)
         | Except.ok r => handleRequest routes  r
         IO.println response
         let t ← IO.asTask do
           _ ← socket'.send (toUTF8 response)
         IO.println s!"Incoming: {remoteAddr}"
-      | None => 
+      | none => 
         IO.println s!"Got None!"
   s.close

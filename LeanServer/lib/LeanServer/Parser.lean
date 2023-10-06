@@ -9,11 +9,10 @@ namespace LeanServer.Parser
 def punctuation := "-_.~!#$&'()*+,/;=?@[]%\" ".toList
 def parsePunctuation := satisfy (fun c => punctuation.contains c)
 def allowedChars := asciiLetter <|> parsePunctuation <|> digit
-#eval punctuation.contains ' '
 
 def newline := pstring "\r\n"
 
-def parseMethod : Lean.Parsec HTTPMethod :=  pstring "GET" *> pure HTTPMethod.GET
+def parseMethod : Lean.Parsec HTTPMethod :=  (pstring "GET" *> pure HTTPMethod.GET) <|> (pstring "POST" *> pure HTTPMethod.POST)
 
 def parsePath : Lean.Parsec String := manyChars (asciiLetter <|> pchar '/' <|> pchar '.' <|> digit)
 
@@ -31,7 +30,7 @@ def parseHeaders : Parsec HeaderMap := do
    pure h.toList
 
 -- TODO. 
-def parseBody : Parsec (Option String) := pure none
+def parseBody : Parsec (Option String) := Parsec.manyChars (allowedChars <|> pchar '\r' <|> pchar '\n')
 
 def RequestParser : Parsec Request := do
    let method ←  parseMethod 
@@ -42,7 +41,7 @@ def RequestParser : Parsec Request := do
    _ ← newline 
    let headers ←  parseHeaders
    let body ←  parseBody
-   pure $ Request.mk method path headers Option.none
+   pure $ Request.mk method path headers (body)
 
 def testString := 
 "GET /pub/WWW/TheProject.html HTTP/1.1\r\nTest: Pass\r\nHost: www.w3.org\r\nTest2: Pass2"
