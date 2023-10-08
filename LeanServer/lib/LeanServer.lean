@@ -26,15 +26,13 @@ def runServer (routes : RoutingTable) : IO Unit := do
   IO.println s!"Listening at http://localhost:8080."
   -- serving
   repeat do
-    -- let (remoteAddr, socket') ← s.accept
     let result <- s.accept
-    IO.println s!"Accepted"
+    -- IO.println s!"Accepted"
     match result with 
       | some x => do 
         let (remoteAddr, socket') := x
         let reqRaw <- receiveAll socket'
         let (reqString : String) := String.fromUTF8Unchecked reqRaw
-        IO.println reqString
         let request := RequestParser.run reqString
         IO.println request
         let response ←  match request with 
@@ -43,7 +41,6 @@ def runServer (routes : RoutingTable) : IO Unit := do
         IO.println response
         let t ← IO.asTask do
           _ ← socket'.send (toUTF8 response)
-        IO.println s!"Incoming: {remoteAddr}"
       | none => 
         IO.println s!"Got None!"
   s.close

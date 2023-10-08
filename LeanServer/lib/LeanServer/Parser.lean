@@ -12,7 +12,9 @@ def allowedChars := asciiLetter <|> parsePunctuation <|> digit
 
 def newline := pstring "\r\n"
 
-def parseMethod : Lean.Parsec HTTPMethod :=  (pstring "GET" *> pure HTTPMethod.GET) <|> (pstring "POST" *> pure HTTPMethod.POST)
+def parseMethod : Lean.Parsec HTTPMethod :=  (pstring "GET" *> pure HTTPMethod.GET) 
+    <|> (pstring "POST" *> pure HTTPMethod.POST)
+    <|> (pstring "DELETE" *> pure HTTPMethod.DELETE)
 
 def parsePath : Lean.Parsec String := manyChars (asciiLetter <|> pchar '/' <|> pchar '.' <|> digit)
 
