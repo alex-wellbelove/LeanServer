@@ -9,11 +9,14 @@
     "name": "proofwidgets",
     "inputRev?": "v0.0.15",
     "inherited": false}},
-  {"path":
-   {"opts": {},
+  {"git":
+   {"url": "https://github.com/alex-wellbelove/Socket.lean.git",
+    "subDir?": null,
+    "rev": "0ea5206947d351041360cd16f9f9cf4c2d1a6cb6",
+    "opts": {},
     "name": "Socket",
-    "inherited": false,
-    "dir": "./../Socket.lean"}},
+    "inputRev?": "main",
+    "inherited": false}},
   {"git":
    {"url": "https://github.com/leanprover/std4",
     "subDir?": null,
@@ -22,8 +25,11 @@
     "name": "std",
     "inputRev?": "main",
     "inherited": true}},
-  {"path":
-   {"opts": {},
+  {"git":
+   {"url": "https://github.com/alex-wellbelove/lean_sqlite.git",
+    "subDir?": null,
+    "rev": "1b9d669d35e3bb8b4f223274e1440f85737876a4",
+    "opts": {},
     "name": "LeanSqlite",
-    "inherited": false,
-    "dir": "./../lean_sqlite"}}]}
+    "inputRev?": "main",
+    "inherited": false}}]}
