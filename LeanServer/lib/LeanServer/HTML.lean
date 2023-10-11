@@ -1,7 +1,6 @@
 import ProofWidgets
 open Lean
 
--- open scoped ProofWidgets.JSX
 def cleanAttr (s : String) : String := match s with 
  | "class_" => "class"
  | "section_" => "section"

@@ -1,6 +1,5 @@
 import Lean.Data.Parsec
 import LeanServer.Router
--- import LeanServer.HTML
 open Lean.Parsec
 open Lean
 namespace LeanServer.Parser
@@ -31,7 +30,6 @@ def parseHeaders : Parsec HeaderMap := do
    let h ←  many parseHeader 
    pure h.toList
 
--- TODO. 
 def parseBody : Parsec (Option String) := Parsec.manyChars (allowedChars <|> pchar '\r' <|> pchar '\n')
 
 def RequestParser : Parsec Request := do
@@ -39,13 +37,8 @@ def RequestParser : Parsec Request := do
    space
    let path ←  parsePath -- TODO QueryParams
    space 
-   let http11 ←  pstring "HTTP/1.1"
+   let _ ←  pstring "HTTP/1.1"
    _ ← newline 
    let headers ←  parseHeaders
    let body ←  parseBody
    pure $ Request.mk method path headers (body)
-
-def testString := 
-"GET /pub/WWW/TheProject.html HTTP/1.1\r\nTest: Pass\r\nHost: www.w3.org\r\nTest2: Pass2"
-
-#eval RequestParser.run testString
